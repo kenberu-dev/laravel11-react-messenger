@@ -40,14 +40,12 @@ class SocketMessage implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         $m = $this->message;
-        $channels = [
-            new PrivateChannel('message.user.'.collect($m->sender_id, $m->receiver_id)->sort()->implode('-')),
-        ];
+        $channels = [];
 
         if ($m->group_id) {
             $channels[] = new PrivateChannel('message.group.' . $m->group_id);
         } else {
-            new PrivateChannel('message.user.' . collect([$m->sender_id, $m->reveiver_id])->sort()->implode('-'));
+            $channels[] = new PrivateChannel('message.user.' . collect([$m->sender_id, $m->receiver_id])->sort()->implode('-'));
         }
 
         return $channels;

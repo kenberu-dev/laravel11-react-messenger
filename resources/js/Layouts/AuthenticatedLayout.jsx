@@ -1,17 +1,84 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
+import { useEventBus } from '@/EventBus';
+import Toast from '@/Components/App/Toast';
+import NewMessageNotification from '@/Components/App/NewMessageNotification.jsx';
 
 export default function Authenticated({ header, children }) {
     const page = usePage();
     const user = page.props.auth.user;
+    const conversations = page.props.conversations;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const {emit} = useEventBus();
+
+    useEffect(() => {
+        conversations.forEach((conversation) => {
+            let channel = `message.group.${conversation.id}`;
+
+            if (conversation.is_user) {
+                channel = `message.user.${[
+                    parseInt(user.id),
+                    parseInt(conversation.id),
+                ]
+                    .sort((a, b) => a - b)
+                    .join("-")}`;
+            }
+            // console.log("Start listening on channel", channel);
+
+            Echo.private(channel)
+                .error((error) => {
+                    console.error(error);
+                })
+                .listen("SocketMessage", (e) => {
+                    console.log("SocketMessage", e);
+                    const message = e.message;
+                    // If the conversation with the sender is not selected
+                    // then show a notification
+
+                    emit("message.created", message);
+                    if (message.sender_id === user.id) {
+                        return;
+                    }
+                    emit("newMessageNotification", {
+                        user: message.sender,
+                        group_id: message.group_id,
+                        message:
+                            message.message ||
+                            `Shared ${
+                                message.attachments.length === 1
+                                    ? "an attachment"
+                                    : message.attachments.length +
+                                      " attachments"
+                            }`,
+                    });
+                });
+        });
+
+        return () => {
+            conversations.forEach((conversation) => {
+                let channel = `message.group.${conversation.id}`;
+                // console.log("Channel", channel);
+
+                if (conversation.is_user) {
+                    channel = `message.user.${[
+                        parseInt(user.id),
+                        parseInt(conversation.id),
+                    ]
+                        .sort((a, b) => a - b)
+                        .join("-")}`;
+                }
+                Echo.leave(channel);
+            });
+        };
+    }, [conversations]);
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col h-screen">
+        <>
+            <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col h-screen">
             <nav className="bg-white dark:bg-gray-800 border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
@@ -122,6 +189,10 @@ export default function Authenticated({ header, children }) {
             )}
 
             {children}
-        </div>
+            </div>
+            <Toast />
+            <NewMessageNotification />
+        </>
+
     );
 }
