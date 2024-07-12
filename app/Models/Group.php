@@ -31,15 +31,22 @@ class Group extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function lastMessage()
+    {
+        return $this->belongsTo(Message::class, 'last_message_id');
+    }
+
     public static function getGroupsForUser(User $user)
     {
-        $query = self::select(['groups.*', 'messages.message as last_message',
-                               'messages.created_at as last_message_date'])
-                                ->join('group_users', 'group_users.group_id', '=', 'groups.id')
-                                ->leftJoin('messages', 'messages.id', '=', 'groups.last_message_id')
-                                ->where('group_users.user_id', $user->id)
-                                ->orderBy('messages.created_at', 'desc')
-                                ->orderBy('groups.name');
+        $query = self::select([
+            'groups.*', 'messages.message as last_message',
+            'messages.created_at as last_message_date'
+        ])
+            ->join('group_users', 'group_users.group_id', '=', 'groups.id')
+            ->leftJoin('messages', 'messages.id', '=', 'groups.last_message_id')
+            ->where('group_users.user_id', $user->id)
+            ->orderBy('messages.created_at', 'desc')
+            ->orderBy('groups.name');
 
         return $query->get();
     }
@@ -58,7 +65,7 @@ class Group extends Model
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'last_message' => $this->last_message,
-            'last_message_date' => $this->last_message_date ? ($this->last_message_date.' UTC') : null,
+            'last_message_date' => $this->last_message_date ? ($this->last_message_date . ' UTC') : null,
         ];
     }
 

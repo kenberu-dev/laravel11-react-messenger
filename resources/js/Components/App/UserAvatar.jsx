@@ -6,9 +6,9 @@ const UserAvatar = ({user, online = null, profile = false }) => {
     return (
         <>
             {user.avatar_url && (
-                <div className={`chat-image avatar ${onlineClass}`}>
+                <div className={`chat-image avatar ${onlineClass} ${sizeClass}`}>
                     <div className={`rounded-full ${onlineClass}`}>
-                        <img src={user.avatar_url} />
+                        <img src={user.avatar_url}/>
                     </div>
                 </div>
             )}

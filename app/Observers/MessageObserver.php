@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\Conversation;
 use App\Models\Group;
 use App\Models\Message;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class MessageObserver
@@ -32,11 +33,11 @@ class MessageObserver
                     ->latest()
                     ->limit(1)
                     ->first();
-            }
 
-            if ($prevMessage) {
-                $group->last_message_id = $prevMessage->id;
-                $group->save();
+                if ($prevMessage) {
+                    $group->last_message_id = $prevMessage->id;
+                    $group->save();
+                }
             }
         } else {
             $conversation = Conversation::where('last_message_id', $message->id)->first();
