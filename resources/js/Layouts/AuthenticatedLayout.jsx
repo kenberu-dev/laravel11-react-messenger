@@ -7,12 +7,16 @@ import { Link, usePage } from '@inertiajs/react';
 import { useEventBus } from '@/EventBus';
 import Toast from '@/Components/App/Toast';
 import NewMessageNotification from '@/Components/App/NewMessageNotification.jsx';
+import PrimaryButton from '@/Components/PrimaryButton';
+import { UserPlusIcon } from '@heroicons/react/24/solid';
+import NewUserModal from '@/Components/App/NewUserModal';
 
 export default function Authenticated({ header, children }) {
     const page = usePage();
     const user = page.props.auth.user;
     const conversations = page.props.conversations;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [showNewUserModal, setShowNewUserModal] = useState(false);
     const {emit} = useEventBus();
 
     useEffect(() => {
@@ -111,10 +115,18 @@ export default function Authenticated({ header, children }) {
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
-                            <div className="ms-3 relative">
+                            <div className="flex ms-3 relative">
+                                {user.is_admin && (
+                                    <PrimaryButton
+                                        onClick = {(ev) =>
+                                            setShowNewUserModal(true)}>
+                                        <UserPlusIcon className="h-5 w-5 mr-2"/>
+                                        Add New User
+                                    </PrimaryButton>
+                                )}
                                 <Dropdown>
                                     <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
+                                        <span className="inline-flex rounded-md bg-gray-800">
                                             <button
                                                 type="button"
                                                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
@@ -206,6 +218,10 @@ export default function Authenticated({ header, children }) {
             </div>
             <Toast />
             <NewMessageNotification />
+            <NewUserModal
+                show={showNewUserModal}
+                onClose={(ev) => setShowNewUserModal(false)}
+            />
         </>
 
     );

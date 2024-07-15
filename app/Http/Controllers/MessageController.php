@@ -52,7 +52,7 @@ class MessageController extends Controller
                 ->where('group_id', $message->group_id)
                 ->latest()
                 ->paginate(10);
-        } else {
+        } else if ($message->receiver_id){
             $messages = Message::where('created_at', '<', $message->created_at)
                 ->where(function ($query) use ($message) {
                     $query->where('sender_id', $message->sender_id)
@@ -120,7 +120,6 @@ class MessageController extends Controller
 
         $group = null;
         $conversation = null;
-        $lastMessage = null;
 
         // Check if the message is the group message
         if ($message->group_id) {
@@ -130,6 +129,8 @@ class MessageController extends Controller
         }
 
         $message->delete();
+
+        $lastMessage = null;
 
         if ($group) {
             // Repopulate $group with latest database data
