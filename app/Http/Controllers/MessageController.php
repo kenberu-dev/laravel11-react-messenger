@@ -11,6 +11,7 @@ use App\Models\Message;
 use App\Models\MessageAttachment;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -48,15 +49,17 @@ class MessageController extends Controller
     {
         // Load older messages that are older than th given message, sort them by the latest
         if ($message->group_id) {
+            Log::info("Group ID deltected.");
             $messages = Message::where('created_at', '<', $message->created_at)
                 ->where('group_id', $message->group_id)
                 ->latest()
                 ->paginate(10);
-        } else if ($message->receiver_id){
+        } else {
+            Log::info("Group ID not detected");
             $messages = Message::where('created_at', '<', $message->created_at)
                 ->where(function ($query) use ($message) {
                     $query->where('sender_id', $message->sender_id)
-                        ->where('receiver_id', $message->recevier_id)
+                        ->where('receiver_id', $message->receiver_id)
                         ->orWhere('sender_id', $message->receiver_id)
                         ->where('receiver_id', $message->sender_id);
                 })

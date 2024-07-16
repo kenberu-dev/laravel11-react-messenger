@@ -61,7 +61,7 @@ function Home({ selectedConversation = null, messages = null }) {
         }
         // Find the first message object
         const firstMessage = localMessages[0];
-        console.log("firstMessage", firstMessage);
+
         axios
             .get(route("message.loadOlder", firstMessage.id))
             .then(({ data }) => {
