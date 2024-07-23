@@ -114,7 +114,7 @@ export default function Authenticated({ header, children }) {
                             </div>
                         </div>
 
-                        <div className="hidden sm:flex sm:items-center sm:ms-6">
+                        <div className="hidden sm:flex sm:items-center sm:ms-6 dark:bg-gray-800">
                             <div className="flex ms-3 relative">
                                 {user.is_admin && (
                                     <PrimaryButton
@@ -126,10 +126,10 @@ export default function Authenticated({ header, children }) {
                                 )}
                                 <Dropdown>
                                     <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md bg-gray-800">
+                                        <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150 dark:bg-gray-800"
                                             >
                                                 {user.name}
 
